@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#ff9a2e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RipLight">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <title>RipLight</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    #app {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.3s ease;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    #controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+      padding: 2.5rem 3rem;
+      border-radius: 20px;
+      background: rgba(0,0,0,0.12);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      pointer-events: none;
+    }
+
+    #controls.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: 220px;
+    }
+
+    .label {
+      font-family: -apple-system, 'Helvetica Neue', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+      border: none;
+      background: rgba(255,255,255,0.25);
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.85);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    input[type=range]::-moz-range-thumb {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.85);
+      cursor: pointer;
+      border: none;
+    }
+
+    #hint {
+      position: fixed;
+      bottom: env(safe-area-inset-bottom, 24px);
+      bottom: calc(env(safe-area-inset-bottom) + 24px);
+      font-family: -apple-system, 'Helvetica Neue', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.3);
+      transition: opacity 0.6s ease;
+    }
+    #hint.hidden { opacity: 0; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="controls">
+      <div class="slider-group">
+        <div class="label">helderheid</div>
+        <input type="range" id="brightness" min="3" max="100" value="40" step="1">
+      </div>
+      <div class="slider-group">
+        <div class="label">warmte</div>
+        <input type="range" id="warmth" min="0" max="100" value="70" step="1">
+      </div>
+    </div>
+    <div id="hint">tik om bediening te tonen</div>
+  </div>
+
+  <script>
+    const app = document.getElementById('app');
+    const controls = document.getElementById('controls');
+    const hint = document.getElementById('hint');
+    const brightnessSlider = document.getElementById('brightness');
+    const warmthSlider = document.getElementById('warmth');
+
+    let hideTimer = null;
+    let controlsVisible = false;
+
+    function update() {
+      const b = brightnessSlider.value / 100;
+      const w = warmthSlider.value / 100;
+      const r = 255;
+      const g = Math.round(255 - (108 * w));
+      const bl = Math.round(255 - (205 * w));
+      app.style.backgroundColor = `rgb(${Math.round(r*b)}, ${Math.round(g*b)}, ${Math.round(bl*b)})`;
+    }
+
+    function showControls() {
+      controlsVisible = true;
+      controls.classList.add('visible');
+      hint.classList.add('hidden');
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(hideControls, 3500);
+    }
+
+    function hideControls() {
+      controlsVisible = false;
+      controls.classList.remove('visible');
+    }
+
+    app.addEventListener('click', (e) => {
+      if (e.target.tagName === 'INPUT') return;
+      if (controlsVisible) hideControls();
+      else showControls();
+    });
+
+    // Keep controls visible while interacting with sliders
+    brightnessSlider.addEventListener('input', () => { clearTimeout(hideTimer); update(); });
+    warmthSlider.addEventListener('input', () => { clearTimeout(hideTimer); update(); });
+    brightnessSlider.addEventListener('pointerup', () => {
+      hideTimer = setTimeout(hideControls, 2000);
+    });
+    warmthSlider.addEventListener('pointerup', () => {
+      hideTimer = setTimeout(hideControls, 2000);
+    });
+
+    // Prevent screen sleep on supported browsers
+    let wakeLock = null;
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen');
+        }
+      } catch (e) {}
+    }
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') requestWakeLock();
+    });
+    requestWakeLock();
+
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+
+    update();
+  </script>
+</body>
+</html>
