@@ -1,19 +1,25 @@
-# RipLight PWA
-
-Warm reading light for bedtime. Geen app store nodig — werkt als PWA rechtstreeks vanuit de browser.
-
-## Installeren als PWA
-
-**Android (Chrome):**  
-Open de URL → tik de drie puntjes → "Toevoegen aan startscherm"
-
-**iPhone (Safari):**  
-Open de URL in Safari → tik het deel-icoontje → "Zet op beginscherm"
-
-## Functies
-
-- Volledig scherm (geen browser UI zichtbaar)
-- Helderheid en warmte instelbaar
-- Tik op het scherm om bediening te tonen/verbergen
-- Screen wake lock (scherm blijft aan)
-- Volledig offline beschikbaar na eerste bezoek
+{
+  "name": "RipLight",
+  "short_name": "RipLight",
+  "description": "Warm reading light for bedtime",
+  "start_url": "/RipLight/",
+  "scope": "/RipLight/",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#ff9a2e",
+  "theme_color": "#ff9a2e",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
