@@ -1,25 +1,38 @@
-{
-  "name": "RipLight",
-  "short_name": "RipLight",
-  "description": "Warm reading light for bedtime",
-  "start_url": "/RipLight/",
-  "scope": "/RipLight/",
-  "display": "fullscreen",
-  "orientation": "any",
-  "background_color": "#ff9a2e",
-  "theme_color": "#ff9a2e",
-  "icons": [
-    {
-      "src": "./icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "./icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ]
-}
+# RipLight PWA
+
+Warm reading light for bedtime. Geen app store nodig — werkt als PWA rechtstreeks vanuit de browser.
+
+## Bestanden
+
+```
+reading-light/
+├── index.html
+├── manifest.json
+├── sw.js
+└── icons/
+    ├── icon-192.png
+    └── icon-512.png
+```
+
+## Hosten op GitHub Pages
+
+1. Maak een nieuw repository aan op GitHub, bv. `riplight`
+2. Upload alle bestanden (inclusief de `icons/` map)
+3. Ga naar **Settings → Pages → Source**: kies `main` branch, root `/`
+4. Na een minuutje is de app live op `https://jouwusername.github.io/riplight/`
+
+## Installeren als PWA
+
+**Android (Chrome):**  
+Open de URL → tik de drie puntjes → "Toevoegen aan startscherm"
+
+**iPhone (Safari):**  
+Open de URL in Safari → tik het deel-icoontje → "Zet op beginscherm"
+
+## Functies
+
+- Volledig scherm (geen browser UI zichtbaar)
+- Helderheid en warmte instelbaar
+- Tik op het scherm om bediening te tonen/verbergen
+- Screen wake lock (scherm blijft aan)
+- Volledig offline beschikbaar na eerste bezoek
