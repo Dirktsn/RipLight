@@ -2,25 +2,6 @@
 
 Warm reading light for bedtime. Geen app store nodig — werkt als PWA rechtstreeks vanuit de browser.
 
-## Bestanden
-
-```
-reading-light/
-├── index.html
-├── manifest.json
-├── sw.js
-└── icons/
-    ├── icon-192.png
-    └── icon-512.png
-```
-
-## Hosten op GitHub Pages
-
-1. Maak een nieuw repository aan op GitHub, bv. `riplight`
-2. Upload alle bestanden (inclusief de `icons/` map)
-3. Ga naar **Settings → Pages → Source**: kies `main` branch, root `/`
-4. Na een minuutje is de app live op `https://jouwusername.github.io/riplight/`
-
 ## Installeren als PWA
 
 **Android (Chrome):**  
