@@ -2,7 +2,7 @@
   "name": "RipLight",
   "short_name": "RipLight",
   "description": "Warm reading light for bedtime",
-  "start_url": "/",
+  "start_url": "https://dirktsn.github.io/RipLight/",
   "display": "fullscreen",
   "orientation": "any",
   "background_color": "#ff9a2e",
