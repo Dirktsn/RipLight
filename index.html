@@ -12,112 +12,159 @@
   <title>RipLight</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    html, body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      touch-action: none;
-    }
+    html, body { width: 100%; height: 100%; overflow: hidden; touch-action: none; }
 
     #app {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      transition: background-color 0.3s ease;
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      transition: background-color 0.5s ease;
       cursor: pointer;
-      user-select: none;
-      -webkit-user-select: none;
+      user-select: none; -webkit-user-select: none;
     }
 
-    #controls {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 28px;
-      padding: 2.5rem 3rem;
-      border-radius: 20px;
-      background: rgba(0,0,0,0.12);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      opacity: 0;
-      transform: translateY(8px);
-      transition: opacity 0.4s ease, transform 0.4s ease;
+    #panel {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 22px;
+      padding: 2rem 2.5rem 1.75rem;
+      border-radius: 24px;
+      background: rgba(0,0,0,0.15);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      opacity: 0; transform: translateY(10px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
       pointer-events: none;
+      min-width: 260px;
     }
+    #panel.visible { opacity: 1; transform: translateY(0); pointer-events: all; }
 
-    #controls.visible {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: all;
-    }
-
-    .slider-group {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      width: 220px;
-    }
-
+    .slider-group { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 220px; }
     .label {
       font-family: -apple-system, 'Helvetica Neue', sans-serif;
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase;
       color: rgba(255,255,255,0.6);
     }
 
     input[type=range] {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 100%;
-      height: 4px;
-      border-radius: 2px;
-      outline: none;
-      cursor: pointer;
-      border: none;
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 4px; border-radius: 2px;
+      outline: none; cursor: pointer; border: none;
       background: rgba(255,255,255,0.25);
     }
     input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
+      width: 22px; height: 22px; border-radius: 50%;
       background: rgba(255,255,255,0.85);
-      cursor: pointer;
-      border: none;
+      cursor: pointer; border: none;
       box-shadow: 0 1px 4px rgba(0,0,0,0.2);
     }
     input[type=range]::-moz-range-thumb {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.85);
-      cursor: pointer;
-      border: none;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: rgba(255,255,255,0.85); cursor: pointer; border: none;
+    }
+
+    .divider { width: 100%; height: 1px; background: rgba(255,255,255,0.15); }
+
+    #timer-section { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 220px; }
+    #timer-row { display: flex; align-items: center; justify-content: center; gap: 12px; }
+    .timer-btn {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.85);
+      font-family: -apple-system, 'Helvetica Neue', sans-serif;
+      font-size: 20px; line-height: 1; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .timer-btn:disabled { opacity: 0.3; cursor: default; }
+    #timer-display {
+      font-family: -apple-system, 'Helvetica Neue', sans-serif;
+      font-size: 24px; font-weight: 300;
+      color: rgba(255,255,255,0.85);
+      min-width: 90px; text-align: center;
+      letter-spacing: 0.03em;
+    }
+    #timer-display.active { color: #fff; font-weight: 400; }
+
+    #timer-start {
+      width: 100%;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.8);
+      font-family: -apple-system, 'Helvetica Neue', sans-serif;
+      font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 8px 20px; border-radius: 20px; cursor: pointer;
+    }
+    #timer-start.running {
+      background: rgba(255,70,70,0.18);
+      border-color: rgba(255,120,120,0.4);
+      color: rgba(255,190,190,0.9);
+    }
+
+    #bottom-row { display: flex; gap: 10px; width: 100%; }
+    .action-btn {
+      flex: 1;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.22);
+      color: rgba(255,255,255,0.65);
+      font-family: -apple-system, 'Helvetica Neue', sans-serif;
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 8px 10px; border-radius: 16px; cursor: pointer;
+    }
+    #close-btn {
+      background: rgba(255,50,50,0.15);
+      border-color: rgba(255,100,100,0.3);
+      color: rgba(255,170,170,0.9);
+    }
+
+    #install-btn {
+      display: none; width: 100%;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.75);
+      font-family: -apple-system, 'Helvetica Neue', sans-serif;
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 8px 16px; border-radius: 16px; cursor: pointer;
+    }
+    #ios-hint {
+      display: none; text-align: center;
+      color: rgba(255,255,255,0.4);
+      font-family: -apple-system, 'Helvetica Neue', sans-serif;
+      font-size: 11px; line-height: 1.6;
+    }
+
+    #countdown-badge {
+      position: fixed;
+      top: calc(env(safe-area-inset-top, 0px) + 16px);
+      right: 16px;
+      font-family: -apple-system, 'Helvetica Neue', sans-serif;
+      font-size: 13px; color: rgba(255,255,255,0.35);
+      letter-spacing: 0.04em;
+      pointer-events: none; display: none;
     }
 
     #hint {
       position: fixed;
-      bottom: env(safe-area-inset-bottom, 24px);
-      bottom: calc(env(safe-area-inset-bottom) + 24px);
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
       font-family: -apple-system, 'Helvetica Neue', sans-serif;
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      color: rgba(255,255,255,0.3);
-      transition: opacity 0.6s ease;
+      font-size: 11px; letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.28);
+      transition: opacity 0.5s;
     }
     #hint.hidden { opacity: 0; }
+
+    #fadeout {
+      position: fixed; inset: 0;
+      background: #000; opacity: 0;
+      pointer-events: none;
+    }
+    #fadeout.fading { transition: opacity 30s linear; opacity: 1; }
+    #fadeout.instant { transition: opacity 1s ease; opacity: 1; }
   </style>
 </head>
 <body>
   <div id="app">
-    <div id="controls">
+    <div id="panel">
       <div class="slider-group">
         <div class="label">helderheid</div>
         <input type="range" id="brightness" min="3" max="100" value="40" step="1">
@@ -126,113 +173,212 @@
         <div class="label">warmte</div>
         <input type="range" id="warmth" min="0" max="100" value="70" step="1">
       </div>
-      <button id="install-btn" style="display:none; margin-top:8px; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.4); color:rgba(255,255,255,0.85); font-family:-apple-system,'Helvetica Neue',sans-serif; font-size:12px; letter-spacing:0.08em; padding:8px 20px; border-radius:20px; cursor:pointer;">
-        installeer app
-      </button>
-      <div id="ios-hint" style="display:none; text-align:center; color:rgba(255,255,255,0.55); font-family:-apple-system,'Helvetica Neue',sans-serif; font-size:11px; line-height:1.6; letter-spacing:0.04em;">
-        tik op het deel-icoon in Safari<br>en kies "Zet op beginscherm"
+
+      <div class="divider"></div>
+
+      <div id="timer-section">
+        <div class="label">slaaptimer</div>
+        <div id="timer-row">
+          <button class="timer-btn" id="t-minus">−</button>
+          <div id="timer-display">uit</div>
+          <button class="timer-btn" id="t-plus">+</button>
+        </div>
+        <button id="timer-start">starten</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <button id="install-btn">installeer app</button>
+      <div id="ios-hint">tik op het deel-icoon in Safari<br>en kies "Zet op beginscherm"</div>
+
+      <div id="bottom-row">
+        <button class="action-btn" id="cancel-timer-btn" style="display:none">annuleer timer</button>
+        <button class="action-btn" id="close-btn">afsluiten</button>
       </div>
     </div>
+
     <div id="hint">tik om bediening te tonen</div>
   </div>
 
+  <div id="countdown-badge"></div>
+  <div id="fadeout"></div>
+
   <script>
-    const app = document.getElementById('app');
-    const controls = document.getElementById('controls');
-    const hint = document.getElementById('hint');
-    const brightnessSlider = document.getElementById('brightness');
-    const warmthSlider = document.getElementById('warmth');
+    const app             = document.getElementById('app');
+    const panel           = document.getElementById('panel');
+    const hint            = document.getElementById('hint');
+    const brightnessSlider= document.getElementById('brightness');
+    const warmthSlider    = document.getElementById('warmth');
+    const tMinus          = document.getElementById('t-minus');
+    const tPlus           = document.getElementById('t-plus');
+    const timerDisplay    = document.getElementById('timer-display');
+    const timerStartBtn   = document.getElementById('timer-start');
+    const cancelTimerBtn  = document.getElementById('cancel-timer-btn');
+    const closeBtn        = document.getElementById('close-btn');
+    const countdownBadge  = document.getElementById('countdown-badge');
+    const fadeout         = document.getElementById('fadeout');
+    const installBtn      = document.getElementById('install-btn');
+    const iosHint         = document.getElementById('ios-hint');
 
-    let hideTimer = null;
-    let controlsVisible = false;
+    let panelVisible  = false;
+    let autohideTimer = null;
+    let timerMinutes  = 0;
+    let timerRunning  = false;
+    let timerEnd      = null;
+    let timerInterval = null;
 
+    // ── color ──────────────────────────
     function update() {
       const b = brightnessSlider.value / 100;
       const w = warmthSlider.value / 100;
       const r = 255;
-      const g = Math.round(255 - (108 * w));
-      const bl = Math.round(255 - (205 * w));
-      app.style.backgroundColor = `rgb(${Math.round(r*b)}, ${Math.round(g*b)}, ${Math.round(bl*b)})`;
+      const g = Math.round(255 - 108 * w);
+      const bl = Math.round(255 - 205 * w);
+      app.style.backgroundColor = `rgb(${Math.round(r*b)},${Math.round(g*b)},${Math.round(bl*b)})`;
     }
 
-    function showControls() {
-      controlsVisible = true;
-      controls.classList.add('visible');
+    // ── panel ──────────────────────────
+    function showPanel() {
+      panelVisible = true;
+      panel.classList.add('visible');
       hint.classList.add('hidden');
-      clearTimeout(hideTimer);
-      hideTimer = setTimeout(hideControls, 3500);
+      resetAutohide();
     }
-
-    function hideControls() {
-      controlsVisible = false;
-      controls.classList.remove('visible');
+    function hidePanel() {
+      panelVisible = false;
+      panel.classList.remove('visible');
+    }
+    function resetAutohide() {
+      clearTimeout(autohideTimer);
+      autohideTimer = setTimeout(hidePanel, 4500);
     }
 
     app.addEventListener('click', (e) => {
-      if (e.target.tagName === 'INPUT') return;
-      if (controlsVisible) hideControls();
-      else showControls();
+      if (e.target.closest('button, input')) return;
+      panelVisible ? hidePanel() : showPanel();
+    });
+    panel.addEventListener('pointerdown', () => clearTimeout(autohideTimer));
+    panel.addEventListener('pointerup', resetAutohide);
+    brightnessSlider.addEventListener('input', update);
+    warmthSlider.addEventListener('input', update);
+
+    // ── timer selection ────────────────
+    const STEP = 5, MAX = 180;
+
+    function formatMinutes(m) {
+      if (m === 0) return 'uit';
+      if (m < 60) return `${m} min`;
+      const h = Math.floor(m / 60), r = m % 60;
+      return r === 0 ? `${h} u` : `${h}u ${r}m`;
+    }
+
+    function renderTimer() {
+      if (timerRunning && timerEnd) {
+        const left = Math.max(0, Math.ceil((timerEnd - Date.now()) / 1000));
+        const m = Math.floor(left / 60), s = left % 60;
+        timerDisplay.textContent = `${m}:${String(s).padStart(2,'0')}`;
+        timerDisplay.classList.add('active');
+      } else {
+        timerDisplay.textContent = formatMinutes(timerMinutes);
+        timerDisplay.classList.remove('active');
+      }
+    }
+
+    tMinus.addEventListener('click', () => {
+      if (timerRunning) return;
+      timerMinutes = Math.max(0, timerMinutes - STEP);
+      renderTimer(); resetAutohide();
+    });
+    tPlus.addEventListener('click', () => {
+      if (timerRunning) return;
+      timerMinutes = Math.min(MAX, timerMinutes + STEP);
+      renderTimer(); resetAutohide();
     });
 
-    // Keep controls visible while interacting with sliders
-    brightnessSlider.addEventListener('input', () => { clearTimeout(hideTimer); update(); });
-    warmthSlider.addEventListener('input', () => { clearTimeout(hideTimer); update(); });
-    brightnessSlider.addEventListener('pointerup', () => {
-      hideTimer = setTimeout(hideControls, 2000);
+    // ── timer run ──────────────────────
+    timerStartBtn.addEventListener('click', () => {
+      resetAutohide();
+      timerRunning ? stopTimer() : (timerMinutes > 0 && startTimer());
     });
-    warmthSlider.addEventListener('pointerup', () => {
-      hideTimer = setTimeout(hideControls, 2000);
+    cancelTimerBtn.addEventListener('click', () => { stopTimer(); resetAutohide(); });
+
+    function startTimer() {
+      timerRunning = true;
+      timerEnd = new Date(Date.now() + timerMinutes * 60000);
+      timerStartBtn.textContent = 'stoppen';
+      timerStartBtn.classList.add('running');
+      cancelTimerBtn.style.display = 'block';
+      countdownBadge.style.display = 'block';
+      tMinus.disabled = true; tPlus.disabled = true;
+
+      timerInterval = setInterval(() => {
+        const left = Math.max(0, timerEnd - Date.now());
+        renderTimer();
+        const sec = Math.ceil(left / 1000);
+        countdownBadge.textContent = `${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`;
+
+        if (left <= 30000 && !fadeout.classList.contains('fading')) {
+          fadeout.classList.add('fading');
+        }
+        if (left <= 0) {
+          clearInterval(timerInterval);
+          if (wakeLock) { try { wakeLock.release(); } catch(e){} }
+          panel.style.display = 'none';
+          hint.style.display = 'none';
+          countdownBadge.style.display = 'none';
+        }
+      }, 500);
+    }
+
+    function stopTimer() {
+      timerRunning = false; timerEnd = null;
+      clearInterval(timerInterval);
+      timerStartBtn.textContent = 'starten';
+      timerStartBtn.classList.remove('running');
+      cancelTimerBtn.style.display = 'none';
+      countdownBadge.style.display = 'none';
+      tMinus.disabled = false; tPlus.disabled = false;
+      fadeout.classList.remove('fading');
+      renderTimer();
+    }
+
+    // ── close ──────────────────────────
+    closeBtn.addEventListener('click', () => {
+      window.close();
+      setTimeout(() => fadeout.classList.add('instant'), 150);
     });
 
-    // Prevent screen sleep on supported browsers
+    // ── wake lock ──────────────────────
     let wakeLock = null;
     async function requestWakeLock() {
-      try {
-        if ('wakeLock' in navigator) {
-          wakeLock = await navigator.wakeLock.request('screen');
-        }
-      } catch (e) {}
+      try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); }
+      catch(e) {}
     }
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') requestWakeLock();
     });
     requestWakeLock();
 
-    // Register service worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
-    }
+    // ── service worker ─────────────────
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 
-    // Install prompt — Android/Chrome
+    // ── install ────────────────────────
     let deferredPrompt = null;
-    const installBtn = document.getElementById('install-btn');
-    const iosHint = document.getElementById('ios-hint');
-
     window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
+      e.preventDefault(); deferredPrompt = e;
       installBtn.style.display = 'block';
     });
-
     installBtn.addEventListener('click', async () => {
       if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      deferredPrompt = null;
-      installBtn.style.display = 'none';
+      deferredPrompt.prompt(); await deferredPrompt.userChoice;
+      deferredPrompt = null; installBtn.style.display = 'none';
     });
-
-    window.addEventListener('appinstalled', () => {
-      installBtn.style.display = 'none';
-    });
-
-    // iOS Safari hint — show if not already installed
+    window.addEventListener('appinstalled', () => installBtn.style.display = 'none');
     const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    const isInStandaloneMode = window.matchMedia('(display-mode: fullscreen)').matches || window.navigator.standalone;
-    if (isIos && !isInStandaloneMode) {
-      iosHint.style.display = 'block';
-    }
+    const isStandalone = window.matchMedia('(display-mode: fullscreen)').matches || navigator.standalone;
+    if (isIos && !isStandalone) iosHint.style.display = 'block';
 
+    renderTimer();
     update();
   </script>
 </body>
